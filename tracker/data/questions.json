@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "role": "HR",
+    "text": "Tell me about yourself.",
+    "keywords": ["experience", "skills", "project", "education"],
+    "max_score": 5
+  },
+  {
+    "id": 2,
+    "role": "HR",
+    "text": "What are your strengths?",
+    "keywords": ["team", "problem", "leadership", "communication"],
+    "max_score": 5
+  },
+  {
+    "id": 3,
+    "role": "Technical",
+    "text": "Explain OOP concepts.",
+    "keywords": ["inheritance", "polymorphism", "encapsulation", "abstraction"],
+    "max_score": 5
+  },
+  {
+    "id": 4,
+    "role": "Technical",
+    "text": "What is a database index?",
+    "keywords": ["search", "fast", "performance", "query"],
+    "max_score": 5
+  },
+  {
+    "id": 5,
+    "role": "Resume",
+    "text": "Tell me about a project you worked on.",
+    "keywords": ["responsibility", "impact", "team", "tools"],
+    "max_score": 5
+  }
+]

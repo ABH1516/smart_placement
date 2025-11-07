@@ -1,0 +1,43 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.mo
+*.swp
+*.swo
+
+# Media & Static files (if you don't want to push uploads)
+media/
+staticfiles/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+htmlcov/
+.coverage
+
+# pyenv
+.python-version
+
+# pip
+pip-log.txt

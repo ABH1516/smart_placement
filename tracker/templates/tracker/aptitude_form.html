@@ -1,0 +1,51 @@
+{% load static %}
+{% load widget_tweaks %}  {# ← Load widget_tweaks here #}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Aptitude Question</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+
+    <h2>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Aptitude Question</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            {{ form.title|add_class:"form-control" }}
+            {{ form.title.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Topic</label>
+            {{ form.topic|add_class:"form-select" }}
+            {{ form.topic.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            {{ form.status|add_class:"form-select" }}
+            {{ form.status.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Solution (optional)</label>
+            {{ form.solution|add_class:"form-control" }}
+            {{ form.solution.errors }}
+        </div>
+
+        <button type="submit" class="btn btn-success">{% if form.instance.pk %}Update{% else %}Add{% endif %}</button>
+        <a href="{% url 'aptitude_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

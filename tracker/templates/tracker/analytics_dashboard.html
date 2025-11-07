@@ -1,0 +1,281 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">📊 Analytics Dashboard</h1>
+
+    <!-- ================= Placement Tracker ================= -->
+    <h3>Placement Tracker</h3>
+
+    <!-- Filters -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <select id="placementCompanyFilter" class="form-select">
+                <option value="">All Companies</option>
+                {% for company in companies %}
+                <option value="{{ company }}">{{ company }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="placementStatusFilter" class="form-select">
+                <option value="">All Statuses</option>
+                {% for status in placement_statuses %}
+                <option value="{{ status }}">{{ status|title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="month" id="placementMonthFilter" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <button id="placementFilterBtn" class="btn btn-primary w-100">Apply Filter</button>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row g-4">
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Status Distribution</h5>
+                <canvas id="placementStatusChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Applications per Company</h5>
+                <canvas id="applicationsPerCompanyChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= DSA Tracker ================= -->
+    <h3 class="mt-5">DSA Tracker</h3>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <select id="dsaTopicFilter" class="form-select">
+                <option value="">All Topics</option>
+                {% for topic in dsa_topics %}
+                <option value="{{ topic }}">{{ topic }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="dsaStatusFilter" class="form-select">
+                <option value="">All Status</option>
+                {% for status in dsa_statuses %}
+                <option value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="dsaFromDate" class="form-control" placeholder="From" />
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="dsaToDate" class="form-control" placeholder="To" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <button id="dsaFilterBtn" class="btn btn-primary w-100">Apply Filter</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Questions Solved per Topic</h5>
+                <canvas id="dsaProgressTopicChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Progress Over Time</h5>
+                <canvas id="dsaProgressTimeChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= Aptitude Tracker ================= -->
+    <h3 class="mt-5">Aptitude Tracker</h3>
+
+    <div class="row g-3 mb-3">
+        <div class="col-md-3">
+            <select id="aptTopicFilter" class="form-select">
+                <option value="">All Topics</option>
+                {% for topic in apt_topics %}
+                <option value="{{ topic }}">{{ topic }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="aptStatusFilter" class="form-select">
+                <option value="">All Status</option>
+                {% for status in apt_statuses %}
+                <option value="{{ status }}">{{ status }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="aptFromDate" class="form-control" placeholder="From" />
+        </div>
+        <div class="col-md-3">
+            <input type="date" id="aptToDate" class="form-control" placeholder="To" />
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-3">
+            <button id="aptFilterBtn" class="btn btn-primary w-100">Apply Filter</button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Average Score per Topic</h5>
+                <canvas id="aptitudeTopicChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6 col-md-12">
+            <div class="analytics-card">
+                <h5>Scores Over Time</h5>
+                <canvas id="aptitudeTimeChart" class="analytics-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function createChart(canvasId, chartType, labels, data, chartLabel, color) {
+    return new Chart(document.getElementById(canvasId), {
+        type: chartType,
+        data: {
+            labels: labels,
+            datasets: [{
+                label: chartLabel,
+                data: data,
+                backgroundColor: color,
+                borderColor: color,
+                fill: chartType === "line" ? false : true,
+                tension: 0.3,
+            }],
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+        },
+    });
+}
+
+// ---------- Placement Tracker ----------
+function fetchPlacementData() {
+    const company = document.getElementById("placementCompanyFilter").value;
+    const status = document.getElementById("placementStatusFilter").value;
+    const month = document.getElementById("placementMonthFilter").value;
+
+    fetch(`/analytics/placement/status/?company=${company}&status=${status}&month=${month}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.placementChart) window.placementChart.destroy();
+            window.placementChart = createChart(
+                "placementStatusChart", "pie",
+                data.map(d => d.status),
+                data.map(d => d.count),
+                "Applications Status",
+                ["#36A2EB", "#FF6384", "#FFCE56", "#4BC0C0"]
+            );
+        });
+
+    fetch(`/analytics/placement/company/?company=${company}&status=${status}&month=${month}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.placementCompanyChart) window.placementCompanyChart.destroy();
+            window.placementCompanyChart = createChart(
+                "applicationsPerCompanyChart", "bar",
+                data.map(d => d.company_name),
+                data.map(d => d.count),
+                "Applications per Company",
+                "#4BC0C0"
+            );
+        });
+}
+document.getElementById("placementFilterBtn").addEventListener("click", fetchPlacementData);
+fetchPlacementData();
+
+// ---------- DSA Tracker ----------
+function fetchDSAData() {
+    const topic = document.getElementById("dsaTopicFilter").value;
+    const status = document.getElementById("dsaStatusFilter").value;
+    const from_date = document.getElementById("dsaFromDate").value;
+    const to_date = document.getElementById("dsaToDate").value;
+
+    fetch(`/analytics/dsa/topic/?topic=${topic}&status=${status}&from_date=${from_date}&to_date=${to_date}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.dsaTopicChart) window.dsaTopicChart.destroy();
+            window.dsaTopicChart = createChart(
+                "dsaProgressTopicChart", "bar",
+                data.map(d => d.topic),
+                data.map(d => d.solved),
+                "Questions Solved per Topic",
+                "#FF6384"
+            );
+        });
+
+    fetch(`/analytics/dsa/time/?topic=${topic}&status=${status}&from_date=${from_date}&to_date=${to_date}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.dsaTimeChart) window.dsaTimeChart.destroy();
+            window.dsaTimeChart = createChart(
+                "dsaProgressTimeChart", "line",
+                data.map(d => d.date_solved),
+                data.map(d => d.solved),
+                "DSA Progress Over Time",
+                "#36A2EB"
+            );
+        });
+}
+document.getElementById("dsaFilterBtn").addEventListener("click", fetchDSAData);
+fetchDSAData();
+
+// ---------- Aptitude Tracker ----------
+function fetchAptitudeData() {
+    const topic = document.getElementById("aptTopicFilter").value;
+    const status = document.getElementById("aptStatusFilter").value;
+    const from_date = document.getElementById("aptFromDate").value;
+    const to_date = document.getElementById("aptToDate").value;
+
+    fetch(`/analytics/aptitude/topic/?topic=${topic}&status=${status}&from_date=${from_date}&to_date=${to_date}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.aptTopicChart) window.aptTopicChart.destroy();
+            window.aptTopicChart = createChart(
+                "aptitudeTopicChart", "bar",
+                data.map(d => d.topic),
+                data.map(d => d.avg_score),
+                "Average Score per Topic",
+                "#FFCE56"
+            );
+        });
+
+    fetch(`/analytics/aptitude/time/?topic=${topic}&status=${status}&from_date=${from_date}&to_date=${to_date}`)
+        .then(res => res.json())
+        .then(data => {
+            if (window.aptTimeChart) window.aptTimeChart.destroy();
+            window.aptTimeChart = createChart(
+                "aptitudeTimeChart", "line",
+                data.map(d => d.date),
+                data.map(d => d.avg_score),
+                "Scores Over Time",
+                "#4BC0C0"
+            );
+        });
+}
+document.getElementById("aptFilterBtn").addEventListener("click", fetchAptitudeData);
+fetchAptitudeData();
+</script>
+{% endblock %}

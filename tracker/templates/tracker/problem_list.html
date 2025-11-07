@@ -1,0 +1,150 @@
+{% extends 'tracker/base.html' %}
+{% block title %}DSA Problem Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+
+    <h2 class="mb-4 text-center">💻 DSA Problem Tracker</h2>
+
+    <!-- ================= Filters ================= -->
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label for="topic" class="form-label">Filter by Topic</label>
+            <select name="topic" id="topic" class="form-select" onchange="this.form.submit()">
+                <option value="">All Topics</option>
+                {% for code, name in topics %}
+                    <option value="{{ code }}" {% if request.GET.topic == code %}selected{% endif %}>{{ name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <label for="status" class="form-label">Filter by Status</label>
+            <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="Solved" {% if request.GET.status == 'Solved' %}selected{% endif %}>Solved</option>
+                <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+            </select>
+        </div>
+    </form>
+
+    <!-- ================= Dashboard Summary ================= -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center shadow-sm p-3">
+                <h5>Overall Progress</h5>
+                <span class="badge bg-success me-2">{{ solved_count }} Solved</span>
+                <span class="badge bg-warning text-dark">{{ pending_count }} Pending</span>
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'problem_create' %}" class="btn btn-primary mb-3">➕ Add New Problem</a>
+        </div>
+    </div>
+
+    <!-- ================= Problem Table ================= -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped shadow-sm bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>Title</th>
+                    <th>Topic</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in problems %}
+                <tr>
+                    <td>{{ p.title }}</td>
+                    <td>{{ p.get_topic_display }}</td>
+                    <td>
+                        {% if p.status == 'Solved' %}
+                            <span class="badge bg-success">{{ p.status }}</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">{{ p.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'problem_update' p.id %}" class="btn btn-sm btn-warning">✏️ Edit</a>
+                        <a href="{% url 'problem_delete' p.id %}" class="btn btn-sm btn-danger">🗑️ Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted">No problems found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================= Charts ================= -->
+    <div class="row mt-4">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5 class="text-center">Overall Progress</h5>
+                <canvas id="overallChart" height="250"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5 class="text-center">Topic-wise Progress</h5>
+                <canvas id="topicChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= JSON Data for JS ================= -->
+{{ solved_count|default:0|json_script:"solved-count" }}
+{{ pending_count|default:0|json_script:"pending-count" }}
+{{ topic_counts_items|json_script:"topic-data" }}
+
+<!-- ================= Scripts ================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // ---------- Get Data ----------
+    const solvedCount = JSON.parse(document.getElementById('solved-count').textContent);
+    const pendingCount = JSON.parse(document.getElementById('pending-count').textContent);
+    const topicData = JSON.parse(document.getElementById('topic-data').textContent);
+
+    // ---------- Overall Pie Chart ----------
+    const overallCtx = document.getElementById('overallChart').getContext('2d');
+    new Chart(overallCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Solved', 'Pending'],
+            datasets: [{
+                data: [solvedCount, pendingCount],
+                backgroundColor: ['#28a745', '#ffc107'],
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+
+    // ---------- Topic-wise Bar Chart ----------
+    const topicLabels = topicData.map(item => item[0]);
+    const solvedData = topicData.map(item => item[1].solved);
+    const pendingData = topicData.map(item => item[1].pending);
+
+    const topicCtx = document.getElementById('topicChart').getContext('2d');
+    new Chart(topicCtx, {
+        type: 'bar',
+        data: {
+            labels: topicLabels,
+            datasets: [
+                { label: 'Solved', data: solvedData, backgroundColor: '#28a745' },
+                { label: 'Pending', data: pendingData, backgroundColor: '#ffc107' }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, precision: 0 } },
+            plugins: { legend: { position: 'bottom' } }
+        }
+    });
+</script>
+{% endblock %}

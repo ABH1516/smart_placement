@@ -1,0 +1,155 @@
+{% extends 'tracker/base.html' %} {% load static %} {% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Resume Analyzer</h2>
+
+  <!-- Upload & Job Description Form -->
+  <form
+    method="post"
+    enctype="multipart/form-data"
+    class="card p-4 shadow-sm mb-4"
+  >
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="resume" class="form-label">Upload Resume (PDF)</label>
+      <input
+        type="file"
+        class="form-control"
+        id="resume"
+        name="resume"
+        required
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="job_description" class="form-label"
+        >Paste Job Description</label
+      >
+      <textarea
+        class="form-control"
+        id="job_description"
+        name="job_description"
+        rows="6"
+        required
+      >
+{{ job_description }}</textarea
+      >
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Analyze</button>
+  </form>
+
+  {% if skills_match %}
+  <!-- Overall Skill Match -->
+  <div class="text-center mb-4">
+    <h4>
+      Overall Skill Match:
+      <span class="text-success">{{ overall_score }}%</span>
+    </h4>
+  </div>
+
+  <!-- Skill Summary Cards -->
+  <div class="row g-4 mb-4">
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6 class="text-center">Required Skills</h6>
+        <ul class="list-group list-group-flush mt-2">
+          {% for skill in job_skills %}
+          <li class="list-group-item">{{ skill }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6 class="text-center text-success">Skills Matched ✅</h6>
+        <ul class="list-group list-group-flush mt-2">
+          {% for skill in matched_skills %}
+          <li class="list-group-item list-group-item-success">{{ skill }}</li>
+          {% empty %}
+          <li class="list-group-item">None matched</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card p-3 shadow-sm">
+        <h6 class="text-center text-danger">Skills Missing ❌</h6>
+        <ul class="list-group list-group-flush mt-2">
+          {% for skill in missing_skills %}
+          <li class="list-group-item list-group-item-danger">{{ skill }}</li>
+          {% empty %}
+          <li class="list-group-item">None missing</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Radar Chart -->
+  <div class="card p-4 shadow-sm mb-5" style="max-width: 600px; margin: auto">
+    <canvas id="skillsRadarChart"></canvas>
+  </div>
+
+  <!-- Pass Python dictionary to JS -->
+  {{ skills_match|json_script:"skills-data" }}
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const skillsMatch = JSON.parse(
+      document.getElementById("skills-data").textContent
+    );
+    const ctx = document.getElementById("skillsRadarChart").getContext("2d");
+
+    const backgroundColors = Object.values(skillsMatch).map((v) =>
+      v >= 80
+        ? "rgba(0,255,128,0.6)"
+        : v >= 50
+        ? "rgba(255,255,0,0.6)"
+        : "rgba(255,50,50,0.6)"
+    );
+
+    new Chart(ctx, {
+      type: "radar",
+      data: {
+        labels: Object.keys(skillsMatch),
+        datasets: [
+          {
+            label: "Skill Match",
+            data: Object.values(skillsMatch),
+            backgroundColor: backgroundColors,
+            borderColor: "rgba(0,200,255,1)",
+            borderWidth: 2,
+            pointBackgroundColor: "rgba(255,255,255,1)",
+            pointBorderColor: "rgba(0,200,255,1)",
+            pointRadius: 6,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 1200, easing: "easeOutQuart" },
+        scales: {
+          r: {
+            angleLines: { color: "rgba(0,0,0,0.1)" },
+            grid: { color: "rgba(0,0,0,0.05)" },
+            suggestedMin: 0,
+            suggestedMax: 100,
+            pointLabels: { color: "#333", font: { size: 14, weight: "bold" } },
+            ticks: {
+              backdropColor: "transparent",
+              color: "#333",
+              stepSize: 20,
+            },
+          },
+        },
+        plugins: { legend: { display: false } },
+      },
+    });
+  </script>
+  {% endif %}
+</div>
+{% endblock %}

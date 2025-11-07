@@ -1,0 +1,85 @@
+{% extends 'tracker/base.html' %}
+{% block title %}Application Form{% endblock %}
+{% block content %}
+
+<h2 class="mb-4 text-center">
+    {% if form.instance.pk %}
+        ✏️ Edit Application
+    {% else %}
+        ➕ Add New Application
+    {% endif %}
+</h2>
+
+<div class="card shadow-sm p-4">
+    <form method="POST" class="needs-validation">
+        {% csrf_token %}
+
+        <!-- Company Name -->
+        <div class="mb-3">
+            <label class="form-label">Company Name <span class="text-danger">*</span></label>
+            {{ form.company_name }}
+            <small class="text-muted">Example: TCS, Infosys, Google</small>
+            {% if form.company_name.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.company_name.errors.as_text }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Job Title -->
+        <div class="mb-3">
+            <label class="form-label">Job Title <span class="text-danger">*</span></label>
+            {{ form.job_title }}
+            <small class="text-muted">Example: Software Engineer, Analyst</small>
+            {% if form.job_title.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.job_title.errors.as_text }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Application Date -->
+        <div class="mb-3">
+            <label class="form-label">Application Date <span class="text-danger">*</span></label>
+            {{ form.application_date }}
+            <small class="text-muted">Select the date you applied</small>
+            {% if form.application_date.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.application_date.errors.as_text }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+            <label class="form-label">Status <span class="text-danger">*</span></label>
+            {{ form.status }}
+            <small class="text-muted">Select current application status</small>
+            {% if form.status.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.status.errors.as_text }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-3">
+            <label class="form-label">Notes</label>
+            {{ form.notes }}
+            <small class="text-muted">Optional: interview tips, reminders, or comments</small>
+            {% if form.notes.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.notes.errors.as_text }}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'application_list' %}" class="btn btn-secondary">⬅️ Back</a>
+            <button type="submit" class="btn btn-success">💾 Save</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

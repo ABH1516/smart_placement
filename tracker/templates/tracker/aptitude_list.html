@@ -1,0 +1,85 @@
+{% extends 'tracker/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-3">
+
+    <!-- Page Title -->
+    <h2 class="mb-3">Aptitude Questions Tracker</h2>
+
+    <!-- Filters -->
+    <form method="get" class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+        <label for="topic">Filter by Topic:</label>
+        <select name="topic" id="topic" class="form-select" onchange="this.form.submit()">
+            <option value="">All Topics</option>
+            {% for code, name in topics %}
+                <option value="{{ code }}" {% if request.GET.topic == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="status">Filter by Status:</label>
+        <select name="status" id="status" class="form-select" onchange="this.form.submit()">
+            <option value="">All</option>
+            <option value="Solved" {% if request.GET.status == 'Solved' %}selected{% endif %}>Solved</option>
+            <option value="Unsolved" {% if request.GET.status == 'Unsolved' %}selected{% endif %}>Unsolved</option>
+        </select>
+    </form>
+
+    <!-- Compact Dashboard -->
+    <div class="mb-4 d-flex flex-wrap align-items-center gap-2">
+        <div class="p-2 border rounded bg-light text-center">
+            <strong>Overall:</strong><br>
+            <span class="badge bg-success">{{ solved_count }} Solved</span>
+            <span class="badge bg-warning text-dark">{{ unsolved_count }} Unsolved</span>
+        </div>
+
+        {% for topic, counts in topic_counts.items %}
+        <div class="p-2 border rounded bg-light text-center">
+            <strong>{{ topic }}:</strong><br>
+            <span class="badge bg-success">{{ counts.solved }}</span>
+            <span class="badge bg-warning text-dark">{{ counts.unsolved }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Add Question Button -->
+    <div class="mb-3">
+        <a href="{% url 'aptitude_create' %}" class="btn btn-primary">Add New Question</a>
+    </div>
+
+    <!-- Questions Table -->
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Topic</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for q in questions %}
+            <tr>
+                <td>{{ q.title }}</td>
+                <td>{{ q.get_topic_display }}</td>
+                <td>
+                    {% if q.status == 'Solved' %}
+                        <span class="badge bg-success">{{ q.status }}</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">{{ q.status }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'aptitude_update' q.id %}" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="{% url 'aptitude_delete' q.id %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No questions found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

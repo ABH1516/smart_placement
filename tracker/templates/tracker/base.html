@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Placement Tracker{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'application_list' %}">Smart Placement</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <!-- Navigation Links -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/applications/' %}active{% endif %}" href="{% url 'application_list' %}">Placement Tracker</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/dsa/' %}active{% endif %}" href="{% url 'problem_list' %}">DSA Tracker</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/aptitude/' %}active{% endif %}" href="{% url 'aptitude_list' %}">Aptitude Tracker</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/analytics/dashboard/' %}active{% endif %}" href="{% url 'analytics_dashboard' %}">Analytics Dashboard</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'resume_analyzer' %}">Resume Analyzer</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/tracker/mock-interview/' %}active{% endif %}" href="{% url 'mock_interview' %}">Mock Interview Bot</a>
+                </li>
+
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <span class="navbar-text me-2">Hello, {{ user.username }}</span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Container -->
+<div class="container my-5">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<!-- Footer -->
+<footer class="text-center mt-5 text-muted small">
+    &copy; {{ now|date:"Y" }} Placement Tracker
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
