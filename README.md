@@ -42,29 +42,38 @@ Perfect for managing end-to-end placement activities — built with scalable bac
 - *Version Control*: Git
 
 ## 📸 Screenshots
-(Add these for maximum impact — recruiters scan visually!)
 
-- Dashboard Overview: ![Dashboard](screenshots/dashboard.png) <!-- Replace with actual paths -->
-- DSA Tracker: ![DSA Tracker](screenshots/dsa_tracker.png)
-- Job Applications: ![Applications](screenshots/applications.png)
-- Mock Interview Bot: ![Mock Interview](screenshots/mock_interview.png)
+
+- Dashboard Overview: ![Dashboard](https://github.com/ABH1516/smart_placement/blob/main/screenshots/Dashboard%20(2).png) 
+- DSA Tracker: ![DSA Tracker](https://github.com/ABH1516/smart_placement/blob/main/screenshots/DSA.png)
+- Job Applications: ![Applications](https://github.com/ABH1516/smart_placement/blob/main/screenshots/Aptitude.png)
+- Mock Interview Bot: ![Mock Interview](https://github.com/ABH1516/smart_placement/blob/main/screenshots/MockInterview.png)
 
 ## 🚀 Setup & Installation
 1. Clone the repo:
    ```bash
    git clone https://github.com/ABH1516/smart_placement.git
    cd smart_placement
-Create virtual environment:
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or venv\Scripts\activate  # Windows
-Install dependencies:
-pip install -r requirements.txt
-Apply migrations:
-python manage.py migrate
-Run server:
-python manage.py runserver
-Access at: http://127.0.0.1:8000/
+2.Create virtual environment:
+  ```bash 
+  python -m venv venv
+  source venv/bin/activate  # Linux/Mac
+  # or venv\Scripts\activate  # Windows
+ ```
+3.Install dependencies:
+  ```
+  pip install -r requirements.txt
+  ```
+4.Apply migrations:
+  ```
+  python manage.py migrate
+  ```
+5.Run server:
+  ```
+  python manage.py runserver
+  ```
+6.Access at: http://127.0.0.1:8000/
+
 📂 Project Structure
 smart_placement/
 ├── tracker/              # Main Django app (models, views, templates, static)
@@ -72,10 +81,13 @@ smart_placement/
 ├── manage.py
 ├── requirements.txt
 └── db.sqlite3
+
 🔮 Future Improvements
-User authentication and multi-user support.
-Export reports to PDF/Excel.
-Integrate external APIs for real interview questions.
-Advanced analytics and scoring for mocks.
+
+1.User authentication and multi-user support.
+2.Export reports to PDF/Excel.
+3.Integrate external APIs for real interview questions.
+4.Advanced analytics and scoring for mocks.
+
 📄 License
 MIT License — free to use and modify!
